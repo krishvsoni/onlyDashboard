@@ -58,32 +58,7 @@ app.get("/stores", authenticateUser, (req, res) => {
     const userStores = stores.filter(store => store.ownerId === req.user.id);
     res.status(200).json(userStores);
 });
-app.post("/stores/create", authenticateUser, (req, res) => {
-    const { name, address, type } = StoreSchema.parse(req.body);
-    const store = { name, address, type, ownerId: req.user.id };
-    stores.push(store);
-    res.status(201).json({ message: "Store created successfully", store });
-});
-app.put("/stores/:storeId", authenticateUser, (req, res) => {
-    const storeId = req.params.storeId;
-    const { name, address, type } = StoreSchema.parse(req.body);
-    const storeIndex = stores.findIndex(store => store.ownerId === req.user.id && store.id === storeId);
-    if (storeIndex === -1) {
-        return res.status(404).json({ message: "Store not found" });
-    }
-    stores[storeIndex] = { id: storeId, name, address, type, ownerId: req.user.id };
-    res.status(200).json({ message: "Store updated successfully", store: stores[storeIndex] });
-});
-app.delete("/stores/:storeId", authenticateUser, (req, res) => {
-    const storeId = req.params.storeId;
-    const storeIndex = stores.findIndex(store => store.ownerId === req.user.id && store.id === storeId);
-    if (storeIndex === -1) {
-        return res.status(404).json({ message: "Store not found" });
-    }
-    stores.splice(storeIndex, 1);
-    res.status(200).json({ message: "Store deleted successfully" });
-});
-app.use(errorHandler);
+app.use(errorHandler); // Handle all errors
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });

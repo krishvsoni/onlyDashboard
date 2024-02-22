@@ -1,4 +1,4 @@
-import express from "express";
+const express = require("express");
 import { z, ZodError } from "zod";
 import { v4 as uuidv4 } from "uuid";
 
@@ -67,7 +67,36 @@ app.get("/stores", authenticateUser, (req: any, res: any) => {
     res.status(200).json(userStores);
 });
 
-app.use(errorHandler); // Handle all errors
+app.post("/stores/create", authenticateUser, (req: any, res: any) => {
+    const { name, address, type } = StoreSchema.parse(req.body);
+    const store = { name, address, type, ownerId: req.user.id };
+    stores.push(store);
+    res.status(201).json({ message: "Store created successfully", store });
+});
+
+app.put("/stores/:storeId", authenticateUser, (req: any, res: any) => {
+    const storeId = req.params.storeId;
+    const { name, address, type } = StoreSchema.parse(req.body);
+    const storeIndex = stores.findIndex(store => store.ownerId === req.user.id && store.id === storeId);
+    if (storeIndex === -1) {
+        return res.status(404).json({ message: "Store not found" });
+    }
+    stores[storeIndex] = { id: storeId, name, address, type, ownerId: req.user.id };
+    res.status(200).json({ message: "Store updated successfully", store: stores[storeIndex] });
+});
+
+app.delete("/stores/:storeId", authenticateUser, (req: any, res: any) => {
+    const storeId = req.params.storeId;
+    const storeIndex = stores.findIndex(store => store.ownerId === req.user.id && store.id === storeId);
+    if (storeIndex === -1) {
+        return res.status(404).json({ message: "Store not found" });
+    }
+    stores.splice(storeIndex, 1);
+    res.status(200).json({ message: "Store deleted successfully" });
+});
+
+
+app.use(errorHandler); 
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
