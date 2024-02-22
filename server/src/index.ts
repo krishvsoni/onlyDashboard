@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 const app = require("express")();
 const PORT = process.env.PORT || 3000;
 
-//  app.use(express.json());
+app.use(express.json());
 let users: any[] = [];
 let stores: any[] = [];
 
