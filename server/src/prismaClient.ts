@@ -1,51 +1,45 @@
-
 import { PrismaClient } from '@prisma/client';
+import faker from 'faker';
 
 const prisma = new PrismaClient();
 
 async function addData() {
   try {
-    const user1 = await prisma.user.create({
-      data: {
-        name: 'John Doe',
-        email: 'john@example.com',
-        password: 'password123',
-      },
-    });
+    const users = [];
+    const stores = [];
 
-    const user2 = await prisma.user.create({
-      data: {
-        name: 'Jane Doe',
-        email: 'jane@example.com',
-        password: 'password456',
-      },
-    });
+    
+    for (let i = 0; i < 5; i++) {
+      const user = await prisma.user.create({
+        data: {
+          name: faker.name.findName(),
+          email: faker.internet.email(),
+          password: faker.internet.password(),
+        },
+      });
+      users.push(user);
+    }
 
-    console.log('Users added:', user1, user2);
+    console.log('Users added:', users);
 
-    const store1 = await prisma.store.create({
-      data: {
-        name: 'Store A',
-        address: '123 Main St',
-        type: 'Grocery',
-        ownerId: user1.id,
-      },
-    });
+   
+    for (let i = 0; i < 5; i++) {
+      const store = await prisma.store.create({
+        data: {
+          name: faker.company.companyName(),
+          address: faker.address.streetAddress(),
+          type: faker.commerce.department(),
+          ownerId: users[Math.floor(Math.random() * users.length)].id,
+        },
+      });
+      stores.push(store);
+    }
 
-    const store2 = await prisma.store.create({
-      data: {
-        name: 'Store B',
-        address: '456 Elm St',
-        type: 'Clothing',
-        ownerId: user2.id,
-      },
-    });
-
-    console.log('Stores added:', store1, store2);
+    console.log('Stores added:', stores);
   } catch (error) {
     console.error('Error adding data:', error);
   } finally {
-    await prisma.$disconnect(); 
+    await prisma.$disconnect();
   }
 }
 
